@@ -4,13 +4,15 @@ import math
 
 cache = TTLCache(maxsize=100, ttl=86400)
 
+
 def main():
     print("That is a program to try to compare the results of approximation using Taylor's series and library math.")
     print("The function that is examined is sin(2x) ^ 3")
     print("With following instructions you will be able to do approximation")
     input("Print anything to continue: ")
     members = inputer("Type the amount of terms in Taylor Series: ", int)
-    degrees_true = inputer("Type R if you want to input radians, type D if you want to degrees: ", bool, ["D", "d"], ["R", "r"])
+    degrees_true = inputer("Type R if you want to input radians, type D if you want to degrees: ", bool, ["D", "d"],
+                           ["R", "r"])
     value = inputer("Type the value of the x: ", float)
     if degrees_true:
         value = (math.pi * value) / 180
@@ -18,14 +20,17 @@ def main():
     result = calculation(value, members)
     close_member = search_for_close(get_into_radius_pi(value))
     print(f"The result of your inputs is {result}")
-    print(f"The result of math sin is  {math_pi(value)}")
+    print(f"The result of math sin is {math_pi(value)}")
     print(f"The first term, that differs from math only for 10 ^ (-6) is {close_member}")
-    if inputer("If you want to create the visualisation of approximation, enter Y, otherwise enter N to Exit: ", str, ["Y","y"], ["N", "n"]):
-        scope = inputer("Enter the scope (the value of y, that will be maximum on graph) from the actual value of the function\n"
-                        "Don't enter too little or too big value, if you want default value of scope just don't enter anything\n"
-                        "Different scopes may be useful, if you want to see how far little terms may go\n"
-                        "Your scope: ", float, "")
+    if inputer("If you want to create the visualisation of approximation, enter Y, otherwise enter N to Exit: ", str,
+               ["Y", "y"], ["N", "n"]):
+        scope = inputer(
+            "Enter the scope (the value of y, that will be maximum on graph) from the actual value of the function\n"
+            "Don't enter too little or too big value, if you want default value of scope just don't enter anything\n"
+            "Different scopes may be useful, if you want to see how far little terms may go\n"
+            "Your scope: ", float, "")
         visualise_difference(value, scope)
+
 
 def calculation(radian, members):
     radian *= 2
@@ -34,8 +39,9 @@ def calculation(radian, members):
         result += ((-1) ** iteration * radian ** (2 * iteration + 1)) / factorial(2 * iteration + 1)
     return result ** 3
 
+
 @cached(cache)
-def factorial(attempt, result = 1):
+def factorial(attempt, result=1):
     """
     Returns factorial recursively
     @param attempt:
@@ -50,12 +56,14 @@ def factorial(attempt, result = 1):
         return result
     return factorial(attempt - 1, result)
 
+
 def get_into_radius_pi(value):
     while value <= - math.pi / 2:
         value += math.pi
     while value >= math.pi / 2:
         value -= math.pi
     return value
+
 
 def search_for_close(radian):
     math_value = (math.sin(2 * radian) ** 3)
@@ -68,12 +76,12 @@ def search_for_close(radian):
             return iteration
         iteration += 1
 
+
 def math_pi(value):
     return math.sin(2 * value) ** 3
 
+
 def visualise_difference(value, scope):
-
-
     x = []
     result = []
     x_count = 10
@@ -104,6 +112,7 @@ def visualise_difference(value, scope):
 
     plt.show()
 
+
 def inputer(text, required_type, first=[], second=[]):
     while True:
         value = input(text)
@@ -112,17 +121,18 @@ def inputer(text, required_type, first=[], second=[]):
         if required_type == float:
             try:
                 return float(value)
-            except:
-                print("The input is not acceptable, please, insert acceptable value")
+            except ValueError:
+                print("The input is not acceptable, please, insert acceptable float value")
         elif required_type == int:
             try:
                 return int(value)
-            except:
-                print("The input is not acceptable, please, insert acceptable value")
+            except ValueError:
+                print("The input is not acceptable, please, insert acceptable integer value")
         if value in second:
             return False
         else:
             print("The input is not correct!")
+
 
 if __name__ == '__main__':
     main()
