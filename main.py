@@ -20,8 +20,8 @@ def main():
     print(f"The result of your inputs is {result}")
     print(f"The result of math sin is  {math_pi(value)}")
     print(f"The first term, that differs from math only for 10 ^ (-6) is {close_member}")
-    if inputer("If you want to create the visualisation of approximation, enter Y, otherwise enter N to Exit", str, ["Y","y"], ["N", "n"]):
-        scope = inputer("Enter the scope (the value of y, that will be maximum on graph) of the graph\n"
+    if inputer("If you want to create the visualisation of approximation, enter Y, otherwise enter N to Exit: ", str, ["Y","y"], ["N", "n"]):
+        scope = inputer("Enter the scope (the value of y, that will be maximum on graph) from the actual value of the function\n"
                         "Don't enter too little or too big value, if you want default value of scope just don't enter anything\n"
                         "Different scopes may be useful, if you want to see how far little terms may go\n"
                         "Your scope: ", float, "")
@@ -73,8 +73,6 @@ def math_pi(value):
 
 def visualise_difference(value, scope):
 
-    if scope is True:
-        scope = 1.5
 
     x = []
     result = []
@@ -82,6 +80,8 @@ def visualise_difference(value, scope):
     for elem in range(x_count):
         x.append(elem)
         result.append(calculation(value, elem))
+    x, result = x[1:], result[1:]
+    minimal, maximal = min(result), max(result)
 
     plt.plot(x, result, color='green', linestyle='dashed', linewidth=2,
              marker='o', markerfacecolor='blue', markersize=12)
@@ -89,7 +89,12 @@ def visualise_difference(value, scope):
     plt.plot(x, [math_pi(value)] * len(x), linewidth=3)
     plt.plot(x, [0] * len(x), linewidth=1, color='black')
 
-    plt.ylim(-scope, scope)
+    if scope is True:
+        difference = maximal - minimal
+        plt.ylim(minimal - difference * 0.1, maximal + difference * 0.1)
+
+    else:
+        plt.ylim(-scope, scope)
     plt.xlim(1, x_count)
 
     plt.xlabel('X axis')
