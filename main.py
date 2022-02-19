@@ -22,7 +22,11 @@ def main():
         value = (math.pi * value) / 180
     if radius_pi:
         value = get_into_radius_pi(value)
-    result = calculation(value, members)
+    try:
+        result = calculation(value, members)
+    except OverflowError:
+        print("Sorry, the numbers are too big, try to start the program with different values")
+        sys.exit()
     print(f"The result of your inputs is {result}")
     print(f"The result of math sin is {math_pi(value)}")
     print(f"The first term, that differs from math only for 10 ^ (-1) is {search_for_close(value, 10 ** (-1))}\n"
@@ -38,17 +42,12 @@ def main():
         terms = inputer(f"How many terms do you want to show: ", int)
         visualise_difference(value, scope, terms)
 
-
+@cached(cache)
 def calculation(radian, members):
     result = 0
     for iteration in range(members + 1)[1:]:
-        try:
-            result += (-1) ** iteration * 2 ** (2 * iteration + 1) * (-1 + 9 ** iteration) * radian ** (2 * iteration + 1) / factorial(2 * iteration + 1)
-            # result += (-1) ** iteration * radian ** (2 * iteration + 1)/(factorial(1+ 2*iteration))
-        except OverflowError:
-            print("Sorry, numbers are too large, try with tinier numbers")
-            sys.exit()
-    # return result ** 3
+        result += (-1) ** iteration * 2 ** (2 * iteration + 1) * (-1 + 9 ** iteration)\
+        * radian ** (2 * iteration + 1) / factorial(2 * iteration + 1)
     return result * (-3 / 4)
 
 @cached(cache)
@@ -97,9 +96,9 @@ def visualise_difference(value, scope, x_count):
     minimal, maximal = min(result), max(result)
 
     plt.plot(x, result, color='green', linestyle='dashed', linewidth=2,
-             marker='o', markerfacecolor='blue', markersize=12)
+             marker='o', markerfacecolor='blue', markersize=11)
 
-    plt.plot(x, [math_pi(value)] * len(x), linewidth=3)
+    plt.plot(x, [math_pi(value)] * len(x), linewidth=3, color="red")
     plt.plot(x, [0] * len(x), linewidth=1, color='black')
 
     if maximal == minimal:
@@ -112,10 +111,10 @@ def visualise_difference(value, scope, x_count):
         plt.ylim(-scope, scope)
     plt.xlim(1, x_count)
 
-    plt.xlabel('X axis')
-    plt.ylabel('The value of ')
+    plt.xlabel('Terms')
+    plt.ylabel('The value of Approximation')
 
-    plt.title('Visualisation of approximation')
+    plt.title(f'Visualisation of Approximation for x = {value}')
 
     plt.show()
 
