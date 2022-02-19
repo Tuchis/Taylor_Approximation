@@ -1,3 +1,4 @@
+import sys
 import matplotlib.pyplot as plt
 from cachetools import cached, TTLCache
 import math
@@ -14,14 +15,19 @@ def main():
     degrees_true = inputer("Type R if you want to input radians, type D if you want to degrees: ", bool, ["D", "d"],
                            ["R", "r"])
     value = inputer("Type the value of the x: ", float)
+    radius_pi = inputer(f'Do you want to get your input into radius of pi (to have better accuracy).\n'
+                        f'Otherwise, there mey occur errors.\n'
+                        f'Print Y to confirm or N to decline: ', str, ["Y", "y"], ["N", "n"])
     if degrees_true:
         value = (math.pi * value) / 180
-    value = get_into_radius_pi(value)
+    if radius_pi:
+        value = get_into_radius_pi(value)
     result = calculation(value, members)
-    close_member = search_for_close(get_into_radius_pi(value))
     print(f"The result of your inputs is {result}")
     print(f"The result of math sin is {math_pi(value)}")
-    print(f"The first term, that differs from math only for 10 ^ (-6) is {close_member}")
+    print(f"The first term, that differs from math only for 10 ^ (-1) is {search_for_close(value, 10 ** (-1))}\n"
+          f"The first term, that differs from math only for 10 ^ (-4) is {search_for_close(value, 10 ** (-4))}\n"
+          f"The first term, that differs from math only for 10 ^ (-6) is {search_for_close(value, 10 ** (-6))}")
     if inputer("If you want to create the visualisation of approximation, enter Y, otherwise enter N to Exit: ", str,
                ["Y", "y"], ["N", "n"]):
         scope = inputer(
@@ -29,16 +35,21 @@ def main():
             "Don't enter too little or too big value, if you want default value of scope just don't enter anything\n"
             "Different scopes may be useful, if you want to see how far little terms may go\n"
             "Your scope: ", float, "")
-        visualise_difference(value, scope)
+        terms = inputer(f"How many terms do you want to show: ", int)
+        visualise_difference(value, scope, terms)
 
 
 def calculation(radian, members):
-    radian *= 2
     result = 0
-    for iteration in range(members):
-        result += ((-1) ** iteration * radian ** (2 * iteration + 1)) / factorial(2 * iteration + 1)
-    return result ** 3
-
+    for iteration in range(members + 1)[1:]:
+        try:
+            result += (-1) ** iteration * 2 ** (2 * iteration + 1) * (-1 + 9 ** iteration) * radian ** (2 * iteration + 1) / factorial(2 * iteration + 1)
+            # result += (-1) ** iteration * radian ** (2 * iteration + 1)/(factorial(1+ 2*iteration))
+        except OverflowError:
+            print("Sorry, numbers are too large, try with tinier numbers")
+            sys.exit()
+    # return result ** 3
+    return result * (-3 / 4)
 
 @cached(cache)
 def factorial(attempt, result=1):
@@ -58,33 +69,27 @@ def factorial(attempt, result=1):
 
 
 def get_into_radius_pi(value):
-    while value <= - math.pi / 2:
-        value += math.pi
-    while value >= math.pi / 2:
-        value -= math.pi
-    return value
+    return value % (math.pi * 2)
 
 
-def search_for_close(radian):
-    math_value = (math.sin(2 * radian) ** 3)
-    radian *= 2
-    result = 0
+def search_for_close(radian, range):
     iteration = 0
-    while True:
-        result += ((-1) ** iteration * radian ** (2 * iteration + 1)) / factorial(2 * iteration + 1)
-        if abs(result ** 3 - math_value) <= 10 ** (-6):
-            return iteration
-        iteration += 1
+    try:
+        while True:
+            if abs(calculation(radian, iteration) - math_pi(radian)) <= range:
+                return iteration
+            iteration += 1
+    except:
+        return "impossible to reach"
 
 
 def math_pi(value):
     return math.sin(2 * value) ** 3
 
 
-def visualise_difference(value, scope):
+def visualise_difference(value, scope, x_count):
     x = []
     result = []
-    x_count = 10
     for elem in range(x_count):
         x.append(elem)
         result.append(calculation(value, elem))
@@ -97,6 +102,8 @@ def visualise_difference(value, scope):
     plt.plot(x, [math_pi(value)] * len(x), linewidth=3)
     plt.plot(x, [0] * len(x), linewidth=1, color='black')
 
+    if maximal == minimal:
+        scope = 0.5
     if scope is True:
         difference = maximal - minimal
         plt.ylim(minimal - difference * 0.1, maximal + difference * 0.1)
