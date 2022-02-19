@@ -6,7 +6,7 @@ The program for Mathematical Analysis to make approximation of sin (2x) ^ 3 usin
 
 The first step was to find the Taylor series for my function. In the following photo are shown my mathematical transformations to get the Taylor series of given function.
 
-
+<img width="911" alt="Screenshot 2022-02-19 at 18 28 47" src="https://user-images.githubusercontent.com/54081501/154809560-6fe783ff-c2bf-447a-94b2-2237ad25d9ba.png">
 
 Now, when we have the series, I created new venv and started working to implement the visualisator in code.
 
